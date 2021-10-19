@@ -10,10 +10,26 @@ class SimpleMFRC522:
   KEY = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
   BLOCK_ADDRS = [8, 9, 10]
 
-  def __init__(self, BLOCK_ADDRS):
+  def __init__(self, sector):
     self.READER = MFRC522()
     self.BLOCK_ADDRS = BLOCK_ADDRS
-    print(self.BLOCK_ADDRS)
+    print(get_blocks(1))
+    print(get_blocks(3))
+    print(get_blocks(5))
+
+  def get_blocks(sector):
+      if sector < 0 or sector > 15:
+          print("Sector value out of range")
+          exit()
+
+      first_block = sector * 4
+      block_addrs = []
+      for i in range(3):
+          block = first_block + i
+          block_addrs.append(block)
+      trailer = (sector + 1) * 4 -1
+
+      return block_addrs, trailer
 
   def read(self):
       id, text = self.read_no_block()
