@@ -12,7 +12,7 @@ class SimpleMFRC522:
 
   def __init__(self, sector):
     self.READER = MFRC522()
-    self.BLOCK_ADDRS = BLOCK_ADDRS
+    #self.BLOCK_ADDRS = BLOCK_ADDRS
     print(get_blocks(1))
     print(get_blocks(3))
     print(get_blocks(5))
