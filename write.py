@@ -3,7 +3,7 @@
 import RPi.GPIO as GPIO
 from MFRC522 import SimpleMFRC522
 
-reader = SimpleMFRC522([11, 12, 13])
+reader = SimpleMFRC522([12, 13, 14])
 
 try:
         text = input('New data:')
