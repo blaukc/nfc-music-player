@@ -13,6 +13,7 @@ class SimpleMFRC522:
   def __init__(self, BLOCK_ADDRS):
     self.READER = MFRC522()
     self.BLOCK_ADDRS = BLOCK_ADDRS
+    print(self.BLOCK_ADDRS)
 
   def read(self):
       id, text = self.read_no_block()
@@ -44,7 +45,7 @@ class SimpleMFRC522:
         return None, None
     id = self.uid_to_num(uid)
     self.READER.MFRC522_SelectTag(uid)
-    status = self.READER.MFRC522_Auth(self.READER.PICC_AUTHENT1A, 15, self.KEY, uid)
+    status = self.READER.MFRC522_Auth(self.READER.PICC_AUTHENT1A, 7, self.KEY, uid)
     data = []
     text_read = ''
     if status == self.READER.MI_OK:
@@ -72,8 +73,8 @@ class SimpleMFRC522:
           return None, None
       id = self.uid_to_num(uid)
       self.READER.MFRC522_SelectTag(uid)
-      status = self.READER.MFRC522_Auth(self.READER.PICC_AUTHENT1A, 15, self.KEY, uid)
-      self.READER.MFRC522_Read(11)
+      status = self.READER.MFRC522_Auth(self.READER.PICC_AUTHENT1A, 7, self.KEY, uid)
+      self.READER.MFRC522_Read(7)
       if status == self.READER.MI_OK:
           data = bytearray()
           data.extend(bytearray(text.ljust(len(self.BLOCK_ADDRS) * 16).encode('ascii')))
@@ -89,24 +90,3 @@ class SimpleMFRC522:
       for i in range(0, 5):
           n = n * 256 + uid[i]
       return n
-
-  def reset(self):
-      (status, TagType) = self.READER.MFRC522_Request(self.READER.PICC_REQIDL)
-      if status != self.READER.MI_OK:
-          return None, None
-      (status, uid) = self.READER.MFRC522_Anticoll()
-      if status != self.READER.MI_OK:
-          return None, None
-      id = self.uid_to_num(uid)
-      self.READER.MFRC522_SelectTag(uid)
-      status = self.READER.MFRC522_Auth(self.READER.PICC_AUTHENT1A, 11, self.KEY, uid)
-      self.READER.MFRC522_Read(11)
-      if status == self.READER.MI_OK:
-          data = bytearray()
-          data.extend(bytearray(text.ljust(len(self.BLOCK_ADDRS) * 16).encode('ascii')))
-          i = 0
-          for block_num in self.BLOCK_ADDRS:
-            self.READER.reset()
-            i += 1
-      self.READER.MFRC522_StopCrypto1()
-      return id, text[0:(len(self.BLOCK_ADDRS) * 16)]
