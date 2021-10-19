@@ -14,7 +14,7 @@ class SimpleMFRC522:
     self.READER = MFRC522()
 
   def get_blocks(self, sector):
-      if sector < 0 or sector > 15:
+      if sector < 1 or sector > 15:
           print("Sector value out of range")
           exit()
 
