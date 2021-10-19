@@ -3,12 +3,12 @@
 import RPi.GPIO as GPIO
 from MFRC522 import SimpleMFRC522
 
-reader = SimpleMFRC522([12, 13, 14])
+reader = SimpleMFRC522()
 
 try:
-        id, text = reader.read()
-        print(id)
-        print(text)
-        print(reader.read())
+    sector = input("Enter sector number: ")
+    id, text = reader.read(sector)
+    print(id)
+    print(text)
 finally:
-        GPIO.cleanup()
+    GPIO.cleanup()
