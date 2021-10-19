@@ -17,7 +17,7 @@ class SimpleMFRC522:
     print(self.get_blocks(3))
     print(self.get_blocks(5))
 
-  def get_blocks(sector):
+  def get_blocks(self, sector):
       if sector < 0 or sector > 15:
           print("Sector value out of range")
           exit()
