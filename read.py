@@ -3,7 +3,7 @@
 import RPi.GPIO as GPIO
 from MFRC522 import SimpleMFRC522
 
-reader = SimpleMFRC522([4, 5, 6])
+reader = SimpleMFRC522([12, 13, 14])
 
 try:
         id, text = reader.read()

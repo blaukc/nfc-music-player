@@ -45,7 +45,7 @@ class SimpleMFRC522:
         return None, None
     id = self.uid_to_num(uid)
     self.READER.MFRC522_SelectTag(uid)
-    status = self.READER.MFRC522_Auth(self.READER.PICC_AUTHENT1A, 7, self.KEY, uid)
+    status = self.READER.MFRC522_Auth(self.READER.PICC_AUTHENT1A, 15, self.KEY, uid)
     data = []
     text_read = ''
     if status == self.READER.MI_OK:
@@ -73,8 +73,8 @@ class SimpleMFRC522:
           return None, None
       id = self.uid_to_num(uid)
       self.READER.MFRC522_SelectTag(uid)
-      status = self.READER.MFRC522_Auth(self.READER.PICC_AUTHENT1A, 7, self.KEY, uid)
-      self.READER.MFRC522_Read(7)
+      status = self.READER.MFRC522_Auth(self.READER.PICC_AUTHENT1A, 15, self.KEY, uid)
+      self.READER.MFRC522_Read(15)
       if status == self.READER.MI_OK:
           data = bytearray()
           data.extend(bytearray(text.ljust(len(self.BLOCK_ADDRS) * 16).encode('ascii')))
