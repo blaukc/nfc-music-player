@@ -6,7 +6,7 @@ from MFRC522 import SimpleMFRC522
 reader = SimpleMFRC522()
 
 try:
-    sector = input("Enter sector number: ")
+    sector = int(input("Enter sector number: "))
     id, text = reader.read(sector)
     print(id)
     print(text)
