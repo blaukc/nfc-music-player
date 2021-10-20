@@ -12,4 +12,4 @@ try:
     reader.write(sector, text)
     print("Written")
 finally:
-        GPIO.cleanup()
+    GPIO.cleanup()
