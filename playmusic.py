@@ -32,8 +32,8 @@ class VLC:
             self.mediaList.add_media(self.Player.media_new(song[0]))
         self.listPlayer = self.Player.media_list_player_new()
         self.listPlayer.set_media_list(self.mediaList)
-        print(self.mediaList.count())
-        print(self.listPlayer.get_state())
+        # print(self.mediaList.count())
+        # print(self.listPlayer.get_state())
 
     def shuffle_playlist(self, playlist):
         random.shuffle(playlist)
@@ -67,28 +67,28 @@ class VLC:
     def stop(self):
         self.listPlayer.stop()
 
-player = VLC("/home/pi/Music/MOTS/", False)
-player.play()
-pause = False
-while True:
-    time.sleep(2)
-    x = input('1234: ')
-    if x == '1':
-        if pause:
-            player.play()
-            pause = False
-        else:
-            player.pause()
-            pause = True
-
-    elif x == '2':
-        player.next()
-
-    elif x == '3':
-        player.previous()
-
-    elif x == '4':
-        player.stop()
+# player = VLC("/home/pi/Music/MOTS/", False)
+# player.play()
+# pause = False
+# while True:
+#     time.sleep(2)
+#     x = input('1234: ')
+#     if x == '1':
+#         if pause:
+#             player.play()
+#             pause = False
+#         else:
+#             player.pause()
+#             pause = True
+#
+#     elif x == '2':
+#         player.next()
+#
+#     elif x == '3':
+#         player.previous()
+#
+#     elif x == '4':
+#         player.stop()
 
 # time.sleep(10)
 # player.next()
