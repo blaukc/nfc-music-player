@@ -31,7 +31,10 @@ try:
 
     while True:
         nfc_playlist_name = read(3)
-        if nfc_playlist_name in playlists and (now_playlist == '' or now_playlist == nfc_playlist_name):
+        if now_playlist == '':
+            now_playlist = nfc_playlist_name
+
+        if nfc_playlist_name in playlists and now_playlist == nfc_playlist_name:
             if not now_playing:
                 playlist_dir = os.path.join(music_dir, nfc_playlist_name)
                 shuffle = (read(4) == 'True')
