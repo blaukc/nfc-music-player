@@ -4,13 +4,18 @@ import RPi.GPIO as GPIO
 from MFRC522 import SimpleMFRC522
 import time
 import os
-from playmusic import VLC
+import threading
+import multiprocessing
+import GPIObutton
+from VLCplayer import VLC
 
 reader = SimpleMFRC522()
 
 music_dir = '/home/pi/Music'
 
-def read(sector):
+player = ''
+
+def read_sector(sector):
     #sector = int(input("Enter sector number: "))
     id, text = reader.read(sector)
     #print(reader.read(sector))
@@ -24,31 +29,41 @@ def read(sector):
 
     return text
 
-try:
+
+def playOnNFC():
+    global player
+
     playlists = os.listdir(music_dir)
     now_playing = False
     now_playlist = ''
 
     while True:
-        nfc_playlist_name = read(3)
+        nfc_playlist_name = read_sector(3)
         if now_playlist == '':
             now_playlist = nfc_playlist_name
 
         if nfc_playlist_name in playlists and now_playlist == nfc_playlist_name:
             if not now_playing:
                 playlist_dir = os.path.join(music_dir, nfc_playlist_name)
-                shuffle = (read(4) == 'True')
+                shuffle = (read_sector(4) == 'True')
                 player = VLC(playlist_dir, shuffle)
                 player.play()
+
                 now_playing = True
             else:
                 pass
         else:
             player.stop()
+
+
             now_playlist = nfc_playlist_name
             now_playing = False
         time.sleep(1)
         print(now_playing, now_playlist)
 
+
+try:
+    pool = multiprocessing.Pool(5)
+    pool.map(playOnNFC, [])
 finally:
     GPIO.cleanup()
