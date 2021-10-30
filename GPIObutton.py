@@ -1,43 +1,37 @@
 import RPi.GPIO as GPIO
 import time
-import multiprocessing
 
+#initialises GPIO buttons
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(6, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(19, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-# while True:
-#     buttonState1 = GPIO.input(6)
-#     buttonState2 = GPIO.input(13)
-#     buttonState3 = GPIO.input(19)
-#     buttonState4 = GPIO.input(26)
-#     if not buttonState1:
-#         print('6')
-#         time.sleep(1)
-#     if not buttonState2:
-#         print('13')
-#         time.sleep(1)
-#     if not buttonState3:
-#         print('19')
-#         time.sleep(1)
-#     if not buttonState4:
-#         print('26')
-#         time.sleep(1)
 
-def buttonLoop(gpio_num):
-    print('button on')
+def buttonLoop(gpio_num, event):
+    print('GPIO button ' + str(gpio_num) + ' listener process started')
+    paused = False
+
+    #listens for button press, then changes the event manager
+    #event manager changes detected by event listener
     while True:
-        buttonState = GPIO.input(gpio_num[0])
+        buttonState = GPIO.input(gpio_num)
         if not buttonState:
-            print(gpio_num[1])
-            time.sleep(1)
+            if gpio_num == 13:
+                event['next'] = True
+                print('Next')
 
-# buttons = [[6, 'Bluetooth'], [13, 'Next'], [19, 'Previous'], [26, 'Play/Pause']]
-#
-# try:
-#     pool = multiprocessing.Pool()
-#     processes = pool.map(buttonLoop, buttons)
-# finally:
-#     pool.close()
-#     pool.join()
+            if gpio_num == 19:
+                event['previous'] = True
+                print('Previous')
+
+            if gpio_num == 26:
+                if paused:
+                    event['play'] = True
+                    paused = True
+                    print('Play')
+                else:
+                    event['pause'] = True
+                    paused = False
+                    print('Pause')
+
+            time.sleep(1)

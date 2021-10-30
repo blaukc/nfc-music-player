@@ -6,9 +6,8 @@ import time
 import os
 
 class VLC:
-    def __init__(self, path, shuffle):
+    def __init__(self):
         self.Player = Instance('--loop')
-        self.addPlaylist(path, shuffle)
 
     def addPlaylist(self, path, shuffle):
         self.mediaList = self.Player.media_list_new()
@@ -66,6 +65,15 @@ class VLC:
 
     def stop(self):
         self.listPlayer.stop()
+
+# player = VLC()
+# player.addPlaylist("/home/pi/Music/211/", True)
+# player.play()
+# time.sleep(10)
+# player.stop()
+# player.addPlaylist("/home/pi/Music/212/", True)
+# player.play()
+# time.sleep(10)
 
 # player = VLC("/home/pi/Music/MOTS/", False)
 # player.play()
