@@ -29,43 +29,39 @@ def read_sector(sector):
 
 
 def playOnNFC(event):
-    try:
-        playlists = os.listdir(music_dir)
-        now_playing = False
-        now_playlist = ''
+    playlists = os.listdir(music_dir)
+    now_playing = False
+    now_playlist = ''
 
-        while True:
-            #reads playlist name sector on nfc tag
-            nfc_playlist_name = read_sector(3)
-            if now_playlist == '':
-                now_playlist = nfc_playlist_name
+    while True:
+        #reads playlist name sector on nfc tag
+        nfc_playlist_name = read_sector(3)
+        if now_playlist == '':
+            now_playlist = nfc_playlist_name
 
-            if nfc_playlist_name in playlists and now_playlist == nfc_playlist_name:
-                #if no track playing currently
-                if not now_playing:
-                    playlist_dir = os.path.join(music_dir, nfc_playlist_name)
-                    shuffle = (read_sector(4) == 'True')
+        if nfc_playlist_name in playlists and now_playlist == nfc_playlist_name:
+            #if no track playing currently
+            if not now_playing:
+                playlist_dir = os.path.join(music_dir, nfc_playlist_name)
+                shuffle = (read_sector(4) == 'True')
 
-                    #triggers event manager to add playlist to VLC player
-                    event['add_playlist'] = [True, playlist_dir, shuffle]
+                #triggers event manager to add playlist to VLC player
+                event['add_playlist'] = [True, playlist_dir, shuffle]
 
-                    now_playing = True
-                    time.sleep(1)
+                now_playing = True
+                time.sleep(1)
 
-                #if playlist playing now is the same
-                else:
-                    time.sleep(1)
-
-            #if change in playlist, stop the current playlist
+            #if playlist playing now is the same
             else:
-                event['stop'] = True
-                now_playlist = nfc_playlist_name
-                now_playing = False
+                time.sleep(1)
 
-            print(now_playing, now_playlist)
-    finally:
-        GPIO.cleanup()
-        print('cleanup')
+        #if change in playlist, stop the current playlist
+        else:
+            event['stop'] = True
+            now_playlist = nfc_playlist_name
+            now_playing = False
+
+        print(now_playing, now_playlist)
 
 
 def eventListener(event):
@@ -146,6 +142,7 @@ except KeyboardInterrupt:
     print('KeyboardInterrupt')
 finally:
     pool.close()
+    pool.terminate()
     pool.join()
     print('Processes joined')
     GPIO.cleanup()

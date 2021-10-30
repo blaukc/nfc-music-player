@@ -18,20 +18,22 @@ def buttonLoop(gpio_num, event):
         if not buttonState:
             if gpio_num == 13:
                 event['next'] = True
+                paused = False
                 print('Next')
 
             if gpio_num == 19:
                 event['previous'] = True
+                paused = False
                 print('Previous')
 
             if gpio_num == 26:
                 if paused:
                     event['play'] = True
-                    paused = True
+                    paused = False
                     print('Play')
                 else:
                     event['pause'] = True
-                    paused = False
+                    paused = True
                     print('Pause')
 
             time.sleep(1)
