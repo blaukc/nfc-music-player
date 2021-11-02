@@ -7,28 +7,31 @@ import os
 import multiprocessing
 from VLCplayer import VLC
 import GPIObutton
+import logging
 
 reader = SimpleMFRC522()
 
 music_dir = '/home/pi/Music'
 
+logging.basicConfig(level = logging.INFO, filename = '/home/pi/Desktop/nfc-music-player/sample.log')
 
 def read_sector(sector):
-    #sector = int(input("Enter sector number: "))
-    id, text = reader.read(sector)
-    #print(reader.read(sector))
-    #print(text)
+    while True:
+        #sector = int(input("Enter sector number: "))
+        id, text = reader.read(sector)
+        #print(reader.read(sector))
+        #print(text)
 
-    try:
-        while text[-1] == ' ':
-            text = text[:-1]
-    except:
-        print('NFC tag read wrongly')
-
-    return text
+        try:
+            while text[-1] == ' ':
+                text = text[:-1]
+            return text
+        except:
+            print('NFC tag read wrongly')
 
 
 def playOnNFC(event):
+    logging.info('nfc on!')
     playlists = os.listdir(music_dir)
     now_playing = False
     now_playlist = ''
@@ -62,10 +65,12 @@ def playOnNFC(event):
             now_playing = False
 
         print(now_playing, now_playlist)
+        logging.info(now_playlist)
 
 
 def eventListener(event):
     print('Event Listener process started')
+    logging.info('Event Listener process started')
     player = VLC()
 
     #checks if there is changes in the event manager, then executes changes to VLC player
@@ -78,8 +83,6 @@ def eventListener(event):
 
             if event['add_playlist'][0]:
                 event['add_playlist'] = [False, event['add_playlist'][1], event['add_playlist'][2]]
-                print('yes')
-                print(event)
                 player.addPlaylist(event['add_playlist'][1], event['add_playlist'][2])
                 player.play()
                 time.sleep(0.5)
@@ -103,47 +106,53 @@ def eventListener(event):
                 event['previous'] = False
                 player.previous()
                 time.sleep(0.5)
+
         except Exception as e:
             print(e)
+            logging.info('Event listener error!')
+            logging.info(e)
+        finally:
+            time.sleep(0.5)
 
 
 
 #GPIO buttons for next, previous, pause
-buttons = [13, 19, 26]
-
-#event manager
-event_dict = {
-    'play': False,
-    'add_playlist': [False, '', False],
-    'stop': False,
-    'pause': False,
-    'next': False,
-    'previous': False
-}
-
-try:
-    # multiprocessing manager used to keep shared variables
-    with multiprocessing.Manager() as manager:
-        event = manager.dict(event_dict)
-        pool = multiprocessing.Pool(processes=5)
-        # add NFC reader to process pool
-        pool.apply_async(playOnNFC, args=(event, ))
-
-        # add next, previous, pause button listeners to process pool
-        for button in buttons:
-            pool.apply_async(GPIObutton.buttonLoop, args=(button, event))
-
-        # add event listener to process pool
-        pool.apply_async(eventListener, args=(event, ))
-
-        while True:
-            pass
-except KeyboardInterrupt:
-    print('KeyboardInterrupt')
-finally:
-    pool.close()
-    pool.terminate()
-    pool.join()
-    print('Processes joined')
-    GPIO.cleanup()
-    print('GPIO cleanup')
+# buttons = [13, 19, 26]
+#
+# #event manager
+# event_dict = {
+#     'play': False,
+#     'add_playlist': [False, '', False],
+#     'stop': False,
+#     'pause': False,
+#     'next': False,
+#     'previous': False
+# }
+#
+# def start():
+#     try:
+#         # multiprocessing manager used to keep shared variables
+#         with multiprocessing.Manager() as manager:
+#             event = manager.dict(event_dict)
+#             pool = multiprocessing.Pool(processes=5)
+#             # add NFC reader to process pool
+#             pool.apply_async(playOnNFC, args=(event, ))
+#
+#             # add next, previous, pause button listeners to process pool
+#             for button in buttons:
+#                 pool.apply_async(GPIObutton.buttonLoop, args=(button, event))
+#
+#             # add event listener to process pool
+#             pool.apply_async(eventListener, args=(event, ))
+#
+#             # while True:
+#             #     pass
+#     except KeyboardInterrupt:
+#         print('KeyboardInterrupt')
+#     finally:
+#         pool.close()
+#         pool.terminate()
+#         pool.join()
+#         print('Processes joined')
+#         GPIO.cleanup()
+#         print('GPIO cleanup')

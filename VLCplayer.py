@@ -1,9 +1,10 @@
-from vlc import Instance
 from mutagen.mp3 import MP3
 from mutagen.flac import FLAC
+from vlc import Instance
 import random
 import time
 import os
+
 
 class VLC:
     def __init__(self):
