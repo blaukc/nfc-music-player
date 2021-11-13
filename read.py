@@ -7,13 +7,11 @@ import os
 import multiprocessing
 from VLCplayer import VLC
 import GPIObutton
-import logging
 
 reader = SimpleMFRC522()
 
 music_dir = '/home/pi/Music'
 
-logging.basicConfig(level = logging.INFO, filename = '/home/pi/Desktop/nfc-music-player/sample.log')
 
 def read_sector(sector):
     while True:
@@ -31,7 +29,6 @@ def read_sector(sector):
 
 
 def playOnNFC(event):
-    logging.info('nfc on!')
     playlists = os.listdir(music_dir)
     now_playing = False
     now_playlist = ''
@@ -65,12 +62,10 @@ def playOnNFC(event):
             now_playing = False
 
         print(now_playing, now_playlist)
-        logging.info(now_playlist)
 
 
 def eventListener(event):
     print('Event Listener process started')
-    logging.info('Event Listener process started')
     player = VLC()
 
     #checks if there is changes in the event manager, then executes changes to VLC player
@@ -109,8 +104,6 @@ def eventListener(event):
 
         except Exception as e:
             print(e)
-            logging.info('Event listener error!')
-            logging.info(e)
         finally:
             time.sleep(0.5)
 
