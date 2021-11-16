@@ -28,44 +28,48 @@ def read_sector(sector):
             print('NFC tag read wrongly')
 
 
-def playOnNFC(event):
+def playOnNFC(event, get_logger):
+    logger = get_logger('NFC reader')
+    logger.info('NFC tag listener process started')
+
     playlists = os.listdir(music_dir)
-    now_playing = False
     now_playlist = ''
 
     while True:
         #reads playlist name sector on nfc tag
         nfc_playlist_name = read_sector(3)
-        if now_playlist == '':
-            now_playlist = nfc_playlist_name
+        logger.info(nfc_playlist_name + ' tag read')
 
-        if nfc_playlist_name in playlists and now_playlist == nfc_playlist_name:
-            #if no track playing currently
-            if not now_playing:
+        #checks if tag read is in playlist list
+        if nfc_playlist_name in playlists:
+            #for first playlist or
+            #if now playing nfc different from current nfc i.e. new playlist
+            if now_playlist == '' or now_playlist != nfc_playlist_name:
+                #now_playlist = nfc_playlist_name
                 playlist_dir = os.path.join(music_dir, nfc_playlist_name)
                 shuffle = (read_sector(4) == 'True')
 
-                #triggers event manager to add playlist to VLC player
-                event['add_playlist'] = [True, playlist_dir, shuffle]
+                if now_playlist == '':
+                    logger.info('Updating events to add and play first playlist: ' + nfc_playlist_name)
+                    event['add_playlist'] = [True, playlist_dir, shuffle]
 
-                now_playing = True
-                time.sleep(1)
+                elif now_playlist != nfc_playlist_name:
+                    logger.info('Updating events to stop current playlist and play new playlist: ' + nfc_playlist_name)
+                    event['new_playlist'] = [True, playlist_dir, shuffle]
 
-            #if playlist playing now is the same
+                now_playlist = nfc_playlist_name
+
             else:
                 time.sleep(1)
 
-        #if change in playlist, stop the current playlist
         else:
-            event['stop'] = True
-            now_playlist = nfc_playlist_name
-            now_playing = False
-
-        print(now_playing, now_playlist)
+            logger.warning('tag playlist ' + nfc_playlist_name + ' is not in list of playlists')
 
 
-def eventListener(event):
-    print('Event Listener process started')
+def eventListener(event, get_logger):
+    logger = get_logger('Event listener')
+    logger.info('Event listener process started')
+    #print('Event Listener process started')
     player = VLC()
 
     #checks if there is changes in the event manager, then executes changes to VLC player
@@ -73,37 +77,48 @@ def eventListener(event):
         try:
             if event['play']:
                 event['play'] = False
+                logger.info('Event heard: Playing')
                 player.play()
                 time.sleep(0.5)
 
             if event['add_playlist'][0]:
                 event['add_playlist'] = [False, event['add_playlist'][1], event['add_playlist'][2]]
+                logger.info('Event heard: Adding Playlist and Playing')
                 player.addPlaylist(event['add_playlist'][1], event['add_playlist'][2])
                 player.play()
                 time.sleep(0.5)
 
-            if event['stop']:
-                event['stop'] = False
+            if event['new_playlist'][0]:
+                event['new_playlist'] = [False, event['new_playlist'][1], event['new_playlist'][2]]
+                logger.info('Event heard: Stopping')
                 player.stop()
+                logger.info('Event heard: Adding New Playlist and Playing')
+                player.addPlaylist(event['new_playlist'][1], event['new_playlist'][2])
+                player.play()
                 time.sleep(0.5)
 
             if event['pause']:
                 event['pause'] = False
+                logger.info('Event heard: Pausing')
                 player.pause()
                 time.sleep(0.5)
 
             if event['next']:
                 event['next'] = False
+                logger.info('Event heard: Playing Next Song')
                 player.next()
                 time.sleep(0.5)
 
             if event['previous']:
                 event['previous'] = False
+                logger.info('Event heard: Playing Previous Song')
                 player.previous()
                 time.sleep(0.5)
 
         except Exception as e:
             print(e)
+            logger.warning(e)
+            logger.warning('Possible due to next/prev/pause pressed before music starts or error with vlc player')
         finally:
             time.sleep(0.5)
 

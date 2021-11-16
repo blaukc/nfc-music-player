@@ -19,5 +19,6 @@ def read_sector(sector):
 
 try:
         print(read_sector(3))
+        print(read_sector(4))
 finally:
         GPIO.cleanup()
